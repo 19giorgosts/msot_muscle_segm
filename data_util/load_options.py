@@ -26,6 +26,7 @@ def load_options(user_config):
     options['msk_folder'] = user_config.get('database', 'msk_folder')
     options['target_height'] = user_config.get('database', 'target_height')
     options['target_width'] = user_config.get('database', 'target_width')
+    options['Nimages'] = user_config.get('database', 'Nimages')
 
     #options['output_folder'] = ''
     #options['current_scan'] = ''

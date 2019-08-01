@@ -1,22 +1,26 @@
 
 import numpy as np
 import os
+import cv2
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
 def data_load(options):
     #%% load the images using the configuration file / paths
     
     # load the filenames of all images
     # Note: delete the __MACOSX folder in the img_folder first
+
     img_filenames = np.array(sorted(os.listdir(options['img_folder'])))#sort to alphabetical order
-    assert len(img_filenames)==options['Nimages']*2#2 channels
+    assert len(img_filenames)==int(options['Nimages'])*2  #2 channels
 
     wells = [f.split('_')[6] for f in img_filenames]
     wells = np.sort(np.unique(wells))#e.g. A01, A02, ..., E04
     channels = [1,2]
     #%%load the images
     #images, 2 channels
-    X = np.zeros(shape=(options['Nimages'],options['target_height'],options['target_width'],2),dtype='float32')
-    Y = np.zeros(shape=(options['Nimages'],options['target_height'],options['target_width'],1),dtype='float32')
+    X = np.zeros(shape=(int(options['Nimages']),int(options['target_height']),int(options['target_width']),2),dtype='float32')
+    Y = np.zeros(shape=(int(options['Nimages']),int(options['target_height']),int(options['target_width']),1),dtype='float32')
 
     i=0
     for w in  wells:
@@ -33,14 +37,14 @@ def data_load(options):
             #load the image
             img = cv2.imread(options['img_folder']+'/'+img_file,-1)
             #resize
-            img=cv2.resize(img,(options['target_width'],options['target_height']))
+            img=cv2.resize(img,(int(options['target_width']),int(options['target_height'])))
             #normalize to 0-1
             img=img/img.max()
             X[i,:,:,c-1]=img
         print('loading mask')
         img = cv2.imread(options['msk_folder']+'/'+w+'_binary.png',cv2.IMREAD_GRAYSCALE)
         #resize
-        img=cv2.resize(img,(options['target_width'],options['target_height']))
+        img=cv2.resize(img,(int(options['target_width']),int(options['target_height'])))
         #normalize to 0-1
         img=img/img.max()
         #create binary image from [0,1] to {0,1}, using 0.5 as threshold
@@ -96,11 +100,11 @@ def data_load(options):
                       'split':fname_split})
 
         #save to disk
-        df.to_csv('./data/training_validation_test_splits.csv',index=False)
-        np.save('./data/X_tr'+str(it)+'.npy',X_tr[str(it)])
-        np.save('./data/X_val.npy',X_val)
-        np.save('./data/X_ts.npy',X_ts)
+        df.to_csv('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/training_validation_test_splits.csv',index=False)
+        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/X_tr'+str(it)+'.npy',X_tr[str(it)])
+        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/X_val.npy',X_val)
+        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/X_ts.npy',X_ts)
 
-        np.save('./data/Y_tr'+str(it)+'.npy',Y_tr[str(it)])
-        np.save('./data/Y_val.npy',Y_val)
-        np.save('./data/Y_ts.npy',Y_ts)
+        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/Y_tr'+str(it)+'.npy',Y_tr[str(it)])
+        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/Y_val.npy',Y_val)
+        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/Y_ts.npy',Y_ts)
