@@ -29,6 +29,9 @@ def load_options(user_config):
     options['target_height'] = user_config.get('database', 'target_height')
     options['target_width'] = user_config.get('database', 'target_width')
     options['Nimages'] = user_config.get('database', 'Nimages')
+    options['Ndata'] = user_config.get('database', 'Ndata')
+    options['Nmodels'] = user_config.get('database', 'Nmodels')
+    options['mode'] = user_config.get('model', 'mode')
 
     #options['output_folder'] = ''
     #options['current_scan'] = ''

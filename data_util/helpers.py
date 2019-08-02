@@ -14,8 +14,6 @@ def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
     plt.sca(current_ax)
     return im.axes.figure.colorbar(im, cax=cax, **kwargs)
 
-
-
 def uncertainty_calc(X,model,bz,sample_times):
     #MC Dropout implementation
     
@@ -49,3 +47,26 @@ def dice2D(a,b):
     if (np.sum(a)+np.sum(b))==0: #black/empty masks
         dice=1.0
     return(dice)
+
+def parsing(Nmodels,Ndata):
+#Nmodels = 1 #number of models trained
+#Ndata=2 #number of modes(percentages%)
+
+  dice={}
+  for mode in range(1,Ndata+1):
+      print("Running mode "+str(mode))
+      X_ts = np.load(options['data_folder']+'X_ts'+str(mode)+'.npy')
+      Ndatapoints = len(X_ts) #number of datapoints in the test set e.g. 2(mode1),4(mode2).. etc.
+      X = np.zeros((Ndatapoints*Nmodels,Ndata),dtype='float')#initialize to zeros
+      l=[]
+      for i in range (Nmodels):
+          train(str(mode))
+          ev,dc=eval(str(mode))
+          for i in dc:
+              l.append(i)
+          dice[mode]=l
+      for d in range(mode,len(dice)+1):
+          for m in range(Ndatapoints*Nmodels):
+              print(d,m)
+              X[m,d] = dice[d][m]
+  return X

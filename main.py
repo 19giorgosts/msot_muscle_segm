@@ -15,273 +15,45 @@ import pandas as pd
 import time
 import keras
 from keras.preprocessing import image# for RGB images
-import os
+
 from tqdm import tqdm
 from numpy import ndarray as nd
-#import h5py
-import sys
+#import sys
+
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
 from keras.callbacks import CSVLogger
 from keras.models import load_model
-import time
-import skimage.transform
-#import cv2# cv2.imread() for grayscale images
-import matplotlib.pyplot as plt
+#from keras.utils import np_utils
+
+#import skimage.transform
 from mpl_toolkits import axes_grid1
 
 from data_util.load_options import *
 from data_util.data_load import *
 from data_util.augment import *
+from data_util.helpers import *
 from data_util.train_eval import *
-from keras.utils import np_utils
 #if used on a non-GUI server ######
 import matplotlib
 matplotlib.use('Agg')
 ###################################
 
 
-## data loading
+## config file reading and data loading
 CURRENT_PATH = os.getcwd()
-print(CURRENT_PATH)
 user_config = configparser.RawConfigParser()
 user_config.read(os.path.join(CURRENT_PATH, 'configuration.cfg'))
 options = load_options(user_config)
 data_load(options)
 
 
-train('3',mc=True)
+train(options['mode'],mc=True)
+dice_hat=eval_DiceNet(options['mode'])
+p,uncertainty_mc = eval_mc(options['mode'])
+#mask_plt(X_ts,p,uncertainty_mc) # plotting predictions and uncertainty mapping
 
-dice_hat=eval_DiceNet('5')
-p,uncertainty_mc = eval_mc('5')
-
-num = 3
-for i in range(num):
-    #sample = np.random.randint(0,len(X_ts[i,:,:,0]))
-    #image = X_predict[sample]
-    #gt    = Y_predict[sample]
-    
-    #gt    = np.squeeze(gt)
-        
-    #n = np.random.randint(0,num)
-    fig, ax = plt.subplots(2,2,figsize=(12,6))
-    
-    
-    #fig.suptitle('Dice: {:.2f}'.format(np.median(dice)), y=1.0, fontsize=14)
-    
-    cax0 = ax[0,0].imshow(X_ts[i,:,:,0])
-    plt.colorbar(cax0, ax=ax[0,0])
-    ax[0,0].set_title('weight mask 1')
-    
-    #cax1 = ax[0,1].imshow(segm[i,:,:,0])
-    #plt.colorbar(cax1, ax=ax[0,1])
-    #ax[0,1].set_title('Max Probability')
-    #ax[0,1].set_ylabel('Prediction')
-    
-    cax2 = ax[0,1].imshow(p[i,:,:,0])
-    plt.colorbar(cax2, ax=ax[0,1])
-    ax[0,1].set_title('MC-Dropout')
-    ax[0,1].set_ylabel('Prediction')
-    
-    cax3 = ax[1,0].imshow(X_ts[i,:,:,1])
-    plt.colorbar(cax3, ax=ax[1,0])
-    ax[1,0].set_title('weight mask 2')
-    
-    #cax4 = ax[1,1].imshow(max_softmax[i,:,:,0])
-    #plt.colorbar(cax4, ax=ax[1,1])
-    #ax[1,1].set_xlabel('Max Probability')
-    #ax[1,1].set_ylabel('Uncertainty')
-
-    cax5 = ax[1,1].imshow(uncertainty_mc[i,:,:,0])
-    plt.colorbar(cax5,ax=ax[1,1])
-    #ax[1,1].set_title('MC-Dropout')
-    ax[1,1].set_ylabel('Uncertainty')
-    
-    #for a in ax.flatten(): a.axis('off')
-    #for a in ax.flatten(): a.xaxis.set_ticks_position('none')    
-    
-    fig.savefig('prediction_uncertainty_{:03d}.png'.format(i), dpi=300)
-    
-    plt.show()
-    plt.close()
-    plt.clf()
-
-def generate_plot(X,Ndatapoints,Nmodels):
-  import numpy as np
-  import matplotlib.pyplot as plt
-#   %matplotlib inline
-
-  connected = True
-  #connected = False
-
-  #%%
-
-  #Ndatapoints = 20 #number of datapoints in the test set
-  #Nmodels = 5 #number of models trained
-
-  #matrix containing the data
-  #rows: test set datapoints
-  #columns: models
-  #each elements corresponds to the score (e.g. accuracy) of a model on a dataset
-  #X = np.zeros((Ndatapoints,Nmodels),dtype='float')#initialize to zeros
-
-  np.random.seed(1)#set random seed for repeatability
-
-  #now generate artificial data, for the sake of plotting
-  #for m in range(Ndatapoints):
-  #    for d in range(Nmodels):
-  #        X[m,d] = np.random.uniform(low=0,high=1)
-
-  #%% generate a plot of boxplots whose medians are connected by a line
-
-  figure_size = 4
-  fig, ax = plt.subplots(figsize=(figure_size*Nmodels,figure_size))
-  box_data = X
-  md = np.median(box_data,axis=0)#median
-  #ax.boxplot plots each column as a separate boxplot
-  bplots = ax.boxplot(box_data)
-
-  xticks = np.arange(Nmodels)+1
-
-  if connected == True:
-      #make the boxplots transparent
-      for key in bplots.keys():
-          #print(key)
-          for b in bplots[key]:
-              b.set_alpha(0.2)
-      #add a line that connects the medians of all boxplots
-      ax.plot(xticks,md,marker='o',c='black',lw=5,markersize=15,label='median')
-      xlab = '%'
-  else:
-      xlab = 'Model '
-
-  ax.set_ylabel('Score (test set)',{'fontsize':16})
-  ax.set_xlabel('Model',{'fontsize':16})
-  ax.set_title('Model Performance ',{'fontsize':16})
-  ax.set_ylim(0,1)
-
-  #generate the xtick labels
-  xtick_labels = []
-  for m in xticks:
-      xtick_labels.append(xlab+str(m))
-  ax.set_xticklabels(xtick_labels,rotation = 30, ha='center',fontsize=10)
-
-  #save the figure to disk
-  if connected == True:
-      plt.savefig('model_boxplots_connected.png',dpi=200,bbox_inches='tight')
-  else:
-      plt.savefig('model_boxplots.png',dpi=200,bbox_inches='tight')
-
-  #%% redo the same plot without the boxplots
-  # only plot a line for the medians, along with error-bars for interquantile range
-
-  figure_size = 4
-  fig, ax = plt.subplots(figsize=(figure_size*Nmodels,figure_size))
-  xticks = np.arange(Nmodels)+1
-  md = np.median(box_data,axis=0)
-  yerr = np.zeros((2,Nmodels))
-  for m in range(Nmodels):
-      #plt.errorbar needs the difference between the percentile and the median
-      #lower errorbar: 25th percentile
-      yerr[0,m]=md[m]-np.percentile(X[:,m],25)#lower errorbar
-      #upper errorbar: 75th percentile
-      yerr[1,m]=np.percentile(X[:,m],75)-md[m]
-
-  #plot the errorbars
-  ax.errorbar(xticks,md,yerr,capsize=10,fmt='none',c='black')
-  #fmt='none' to only plot the errorbars
-
-  #plot the (optional) connecting line
-  if connected == True:
-      ax.plot(xticks,md,marker='o',c='blue',lw=5,markersize=10,label='Random query')
-      xlab = '% '
-  else:
-      ax.scatter(xticks,md,marker='o',c='black',s=200)
-      xlab = 'Model '
-  plt.axhline(y=0.92, label="Full data performance",color='r', linestyle='--')
-  plt.legend()
-
-  ax.set_ylabel('Score (test set)',{'fontsize':16})
-  ax.set_xlabel('Model',{'fontsize':16})
-  ax.set_title('Model Performance ',{'fontsize':16})
-  ax.set_ylim(0,1)
-
-  ax.set_xticks(xticks)
-  #generate the xtick labels
-  xtick_labels = []
-  for m in xticks:
-      xtick_labels.append(str(10*m)+xlab)
-  ax.set_xticklabels(xtick_labels,rotation = 30, ha='center',fontsize=10)
-
-  if connected == True:
-      plt.savefig('model_errorbars_connected.png',dpi=200,bbox_inches='tight')
-  else:
-      plt.savefig('model_errorbars.png',dpi=200,bbox_inches='tight')
-
-Nmodels = 1 #number of models trained
-Ndata=2 #number of modes(percentages%)
-
-dice={}
-for mode in range(1,Ndata+1):
-    print("Running mode "+str(mode))
-    X_ts = np.load('./data/X_ts'+str(mode)+'.npy')
-    Ndatapoints = len(X_ts) #number of datapoints in the test set e.g. 2(mode1),4(mode2).. etc.
-    X = np.zeros((Ndatapoints*Nmodels,Ndata),dtype='float')#initialize to zeros
-    l=[]
-    for i in range (Nmodels):
-        train(str(mode))
-        ev,dc=eval(str(mode))
-        for i in dc:
-            l.append(i)
-        dice[mode]=l
-    for d in range(mode,len(dice)+1):
-        for m in range(Ndatapoints*Nmodels):
-            print(d,m)
-            X[m,d] = dice[d][m]
-
-X = np.zeros((2*Nmodels,1),dtype='float')#initialize to zeros
-X[1][1]
-
-generate_plot(X)
-
-dic={}
-for mode in range (2):
-  x=[]
-  for i in range (4):
-    x.append(i)
-    dic[mode]=x
-dic[1]
-
-#save
-#np.save('dice_2.npy', dice) 
-#load
-#read_dictionary = np.load('dice.npy',allow_pickle=True).item()
-
-#matrix containing the data
-#rows: test set datapoints
-#columns: models
-#each elements corresponds to the score (e.g. accuracy) of a model on a dataset
-#X = np.zeros((Ndatapoints,Nmodels),dtype='float')#initialize to zeros
-#array = np.array(list(dice.items()))
-arr=[]
-for i in range(10):
-    arr.append(dice[i]) 
-#print(np.asarray(arr, dtype=np.float32).shape)
-#X = np.zeros((Ndatapoints,Nmodels),dtype='float')#initialize to zeros
-#print(X.shape)
-for d in range(Nmodels):
-  for m in range(Ndatapoints):
-        X[m,d] = arr[d][m]
-
-perc=[5,10,15,20,25,30,35,40,45,50]
-# %matplotlib inline
-import matplotlib.pyplot as plt
-plt.axhline(y=0.92, label="Full data performance",color='r', linestyle='--')
-plt.plot(perc,dice_ovr,label='Random query',marker='o')
-plt.xlabel('Percentage (%) of training data used')
-plt.ylabel('Dice coefficient')
-plt.legend()
-plt.show()
-
-
+## HERE PLOTTING functions
+X=parsing(load_options['Nmodels'],load_options['Ndata'])
+generate_plot(X,load_options['Nmodels']) # generating plotting
 
