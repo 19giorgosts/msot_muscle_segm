@@ -22,6 +22,8 @@ def load_options(user_config):
 
     # experiment name (where trained weights are)
     #options['experiment'] = user_config.get('model', 'name')
+    options['root_folder'] = user_config.get('database', 'root_folder')
+    options['data_folder'] = user_config.get('database', 'data_folder')
     options['img_folder'] = user_config.get('database', 'img_folder')
     options['msk_folder'] = user_config.get('database', 'msk_folder')
     options['target_height'] = user_config.get('database', 'target_height')

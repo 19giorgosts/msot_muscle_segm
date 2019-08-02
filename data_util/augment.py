@@ -1,4 +1,5 @@
 import numpy as np
+import skimage.transform
 
 def rotateT(X,angle):
 	#rotate image tensor, TF order, single channel

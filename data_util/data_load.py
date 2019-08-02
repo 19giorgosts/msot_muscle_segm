@@ -100,11 +100,11 @@ def data_load(options):
                       'split':fname_split})
 
         #save to disk
-        df.to_csv('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/training_validation_test_splits.csv',index=False)
-        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/X_tr'+str(it)+'.npy',X_tr[str(it)])
-        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/X_val.npy',X_val)
-        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/X_ts.npy',X_ts)
+        df.to_csv(options['data_folder']+'training_validation_test_splits.csv',index=False)
+        np.save(options['data_folder']+'X_tr'+str(it)+'.npy',X_tr[str(it)])
+        np.save(options['data_folder']+'X_val.npy',X_val)
+        np.save(options['data_folder']+'X_ts.npy',X_ts)
 
-        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/Y_tr'+str(it)+'.npy',Y_tr[str(it)])
-        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/Y_val.npy',Y_val)
-        np.save('/media/giorgos/Xtra HardDrive D:/msot_muscle_segmentation/data/Y_ts.npy',Y_ts)
+        np.save(options['data_folder']+'Y_tr'+str(it)+'.npy',Y_tr[str(it)])
+        np.save(options['data_folder']+'Y_val.npy',Y_val)
+        np.save(options['data_folder']+'Y_ts.npy',Y_ts)

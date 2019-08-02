@@ -33,7 +33,7 @@ from mpl_toolkits import axes_grid1
 from data_util.load_options import *
 from data_util.data_load import *
 from data_util.augment import *
-
+from data_util.train_eval import *
 from keras.utils import np_utils
 #if used on a non-GUI server ######
 import matplotlib
@@ -51,8 +51,8 @@ data_load(options)
 
 
 train('3',mc=True)
-dice_hat=eval_DiceNet('5')
 
+dice_hat=eval_DiceNet('5')
 p,uncertainty_mc = eval_mc('5')
 
 num = 3
