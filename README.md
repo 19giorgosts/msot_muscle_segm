@@ -1,4 +1,4 @@
-# msot_muscle_segmenation
+# msot_muscle_segmentation
 
 This project aims at the Segmentation of Muscle Tissue in Multispectral Optoacoustic Tomography Images.
 
