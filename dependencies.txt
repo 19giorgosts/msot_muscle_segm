@@ -1,0 +1,8 @@
+numpy>=1.11.0
+matplotlib
+pandas
+keras
+tensorflow
+cv2
+sklearn
+scikit-image
