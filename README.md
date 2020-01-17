@@ -3,7 +3,7 @@
 
 *Abbreviations*:
 
-*AL: Active Learning, MSOT: Multispectral Optoacoustic Tomography Images, ROI: Region of Interest, MC-dropout: Monte-Carlo dropout,CNN: Convolutional Neural Network, FCN: Fully Convolutional Network*
+*AL: Active Learning, MSOT: Multispectral Optoacoustic Tomography Images, ROI: Region of Interest, MC-dropout: Monte-Carlo dropout, CNN: Convolutional Neural Network, FCN: Fully Convolutional Network*
 
 This project aims at the  development of an active deep learning framework for the segmentation of Muscle Tissue in MSOT images. MSOT is a novel imaging modality based on the optoacoustic phenomenon (https://www.ithera-medical.com/technology/). AL is a technique that aims at maximizing a network's performance, while at the same time minimizing the total number of annotated data needed for training the model. Thus, a close-to-the baseline performance can be achieved by using just a subset of the data that the algorithm would usually train with, reducing significantly the total time needed for training and alleviating the burden of data annotation from the side of the clinicians. 
 
