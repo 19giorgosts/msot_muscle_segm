@@ -17,6 +17,6 @@ The input vector denoted as x consists of one stack of 28 channels of 2D MSOT sc
 
 ![](end-to-end_final.PNG)
 
-**Evaluation metrics**:
+**Metrics**:
 
 The Dice Coefficient metric is being used for evaluation of UNET and the mean squared error (mse) for the vgg-like CNN.
