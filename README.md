@@ -3,7 +3,7 @@
 
 *Abbreviations*:
 
-AL: Active Learning, MSOT: Multispectral Optoacoustic Tomography Images, ROI: Region of Interest, MC-dropout: Monte-Carlo dropout,CNN: Convolutional Neural Network, FCN: Fully Convolutional Network
+*AL: Active Learning, MSOT: Multispectral Optoacoustic Tomography Images, ROI: Region of Interest, MC-dropout: Monte-Carlo dropout,CNN: Convolutional Neural Network, FCN: Fully Convolutional Network*
 
 This project aims at the Segmentation of Muscle Tissue in MSOT images.
 
