@@ -14,6 +14,6 @@ The dataset is split into training, validation and test set, like in every tradi
 
 The proposed framework consists of the following components: Initially a variation of UNET with MC-dropout layers (p=0.5) is responsible for producing: a segmentation mask and an uncertainty mapping. Subsequently, a second CNN was implemented, aiming at predicting a quality estimation of the model by being evaluated on the remaining unannotated data and predicting their dice coefficients. The selection of the to-be-added samples is based on this dice score estimation, namely the data samples corresponding to the 10% of the worst dice indices are selected and added to the training set together with their respective ROIs. Based on their role, the network components were named: UNet_mc and DiceNet respectively.
 
-# Evaluation metrics:
+\b Evaluation metrics:
 
 The Dice Coefficient metric is being used for evaluation of UNET and the mean squared error (mse) for the vgg-like CNN.
