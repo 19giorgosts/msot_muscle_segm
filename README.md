@@ -13,7 +13,7 @@ The dataset is split into training, validation and test set, like in every tradi
 
 The proposed framework consists of the following components: Initially a variation of UNET with MC-dropout layers (p=0.5) is responsible for producing: a segmentation mask and an uncertainty mapping. Subsequently, a second CNN was implemented, aiming at predicting a quality estimation of the model by being evaluated on the remaining unannotated data and predicting their dice coefficients. The selection of the to-be-added samples is based on this dice score estimation, namely the data samples corresponding to the 10% of the worst dice indices are selected and added to the training set together with their respective ROIs. Based on their role, the network components were named: UNet_mc and DiceNet respectively. The end-to-end pipeline is depicted on Fig1.
 
-The input vector denoted as x consists of one stack of 28 channels of 2D MSOT scans, each channel of which corresponds to monochromatic absorption at a particular wavelength. The machine illuminates and detects signal at 28 distinct wavelengths, starting from 700nm and reaching up to 970nm, with a 10nm step. The two outputs of the UNet_mc are referred to as y^: segmentation output and z: uncertainty map.
+The input vector denoted as x consists of one stack of 28 channels of 2D MSOT scans, each channel of which corresponds to monochromatic absorption at a particular wavelength. The machine illuminates and detects signal at 28 distinct wavelengths, starting from 700nm and reaching up to 970nm, with a 10nm step. The two outputs of the UNet_mc are referred to as y_hat: segmentation output and z: uncertainty map, while the quality estimate computed by DiceNet is called d_hat.
 
 ![](end-to-end_final.PNG)
 
