@@ -1,4 +1,7 @@
 import numpy as np
+
+
+
 def uncertainty_calc(X,model,bz,sample_times):
     #MC Dropout implementation
     
@@ -31,6 +34,8 @@ def dice2D(a,b):
     if (np.sum(a)+np.sum(b))==0: #black/empty masks
         dice=1.0
     return(dice)
+
+
 def parsing(Nmodels,Ndata):
 
 	Ndatapoints = 10 #number of datapoints in the test set
@@ -45,6 +50,8 @@ def parsing(Nmodels,Ndata):
 	    for m in range(Ndatapoints*Nmodels):
 	        X_sg[m,d-1] = dice_sg['%s'%d][m]
 	return X_rand,X_sg
+
+
 def sample_prediction(dc,sample_size,random=False):
     dc=np.asarray(dc, dtype=np.float32)
     dc = dc.ravel()
@@ -67,6 +74,66 @@ def sample_prediction(dc,sample_size,random=False):
         for i in range (indices.shape[0]):
              sug_annot.append(indices.iloc[i])
     return sug_annot
+
+
+
+def run_random(Nmodels,Ndata,Ndatapoints): ## RANDOM ANNOTATION PROCEDURE
+    #Nmodels = 5 #number of models trained
+    #Ndata= 5 #number of modes(percentages%)
+    #Ndatapoints = 10 #number of datapoints in the test set
+    dice={}
+    import json
+    for mode in range(1,Ndata+1):
+        print("Running mode "+str(mode))
+        X = np.zeros((Ndatapoints*Nmodels,Ndata),dtype='float') #initialize to zeros
+        l=[]
+        for i in range (Nmodels):
+            if mode==1: sug_annot=[]## running mode 10%
+            if i==0: data_load(sug_annot) # data loading
+            X_ts = np.load('./X_ts.npy')
+            Y_ts = np.load('./Y_ts.npy')
+            train(mc=True) # training procedure ( whole network )dicehat=annot_procedure(sug_annot) #training and evaluation of whole pipeline for a particular % of train split
+            p,unc=eval_mc(mode='test') #evaluation on test set for model performance
+            dc_rand=dice_pred(p,Y_ts)
+            unc_plot(X_ts,Y_ts,p,unc,mode*25)
+            dicehat=eval_DiceNet(mode='pool') # evaluation on pool set to get the estimated dice scores
+            for i in dc_rand:
+                l.append(i)
+                dice[mode]=l
+        sug_annot = sample_prediction(dicehat,sample_size=20,random=True) # random annotation
+        with open('dice_msot_rand.json', 'w') as fp:
+            json.dump(dice, fp)
+
+
+
+def run_sug(Nmodels,Ndata,Ndatapoints):## SUGGESTIVE ANNOTATION 
+    #Nmodels = 5 #number of models trained
+    #Ndata= 5 #number of modes(percentages%)
+    #Ndatapoints = 10 #number of datapoints in the test set
+    dice={}
+    import json
+    for mode in range(1,Ndata+1):
+        print("Running mode "+str(mode))
+        X = np.zeros((Ndatapoints*Nmodels,Ndata),dtype='float') #initialize to zeros
+        l=[]
+        for i in range (Nmodels):
+            if mode==1: sug_annot=[]## running mode 10%
+            if i==0: data_load(sug_annot) # data loading
+            X_ts = np.load('./X_ts.npy')
+            Y_ts = np.load('./Y_ts.npy')
+            train(mc=True) # training procedure ( whole network )dicehat=annot_procedure(sug_annot) #training and evaluation of whole pipeline for a particular % of train split
+            p,unc=eval_mc(mode='test') #evaluation on test set for model performance
+            dc_rand=dice_pred(p,Y_ts)
+            unc_plot(X_ts,Y_ts,p,unc,mode*25)
+            dicehat=eval_DiceNet(mode='pool') # evaluation on pool set to get the estimated dice scores
+            for i in dc_rand:
+                l.append(i)
+                dice[mode]=l
+        sug_annot = sample_prediction(dicehat,sample_size=20) # random annotation
+        with open('dice_msot_sg.json', 'w') as fp:
+            json.dump(dice, fp)
+
+
 def dice_pred(p,Y_ts):
     d=[]
     for i in range(Y_ts.shape[0]):
