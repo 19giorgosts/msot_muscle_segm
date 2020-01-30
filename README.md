@@ -30,7 +30,7 @@ The Dice Coefficient metric is being used for evaluation of UNET.
 
 **Literature**:
 
-[1]: itheramedical.com
+[1]: www.itheramedical.com
 
 [2]: T. DeVries and G. W. Taylor. Leveraging Uncertainty Estimates for Predicting Segmentation Quality
 
