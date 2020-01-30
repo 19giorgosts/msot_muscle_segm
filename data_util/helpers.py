@@ -1,19 +1,4 @@
-
 import numpy as np
-
-def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
-    """
-    Add a vertical color bar to an image plot.
-    https://stackoverflow.com/questions/18195758/set-matplotlib-colorbar-size-to-match-graph
-    """
-    divider = axes_grid1.make_axes_locatable(im.axes)
-    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1./aspect)
-    pad = axes_grid1.axes_size.Fraction(pad_fraction, width)
-    current_ax = plt.gca()
-    cax = divider.append_axes("right", size=width, pad=pad)
-    plt.sca(current_ax)
-    return im.axes.figure.colorbar(im, cax=cax, **kwargs)
-
 def uncertainty_calc(X,model,bz,sample_times):
     #MC Dropout implementation
     
@@ -33,40 +18,63 @@ def uncertainty_calc(X,model,bz,sample_times):
         end = time.time()        
         chkpnt=(end-start) # this is how long it lasts for all images of the test set, for MC Dropout-based Uncertainty Estimation
         
-        #%% convert predicted mask to binary
+        #%% convert predictedυγιείς mask to binary
         threshold=0.5
         prediction[prediction<threshold]=0
         prediction[prediction>=threshold]=1
         print("\n Time needed for MC Dropout-based Uncertainty Estimation  ",chkpnt)
 
     return prediction,uncertainty_mc
-
 def dice2D(a,b):
     intersection = np.sum(a[b==1])
     dice = (2*intersection)/(np.sum(a)+np.sum(b))
     if (np.sum(a)+np.sum(b))==0: #black/empty masks
         dice=1.0
     return(dice)
-
 def parsing(Nmodels,Ndata):
-#Nmodels = 1 #number of models trained
-#Ndata=2 #number of modes(percentages%)
 
-  dice={}
-  for mode in range(1,Ndata+1):
-      print("Running mode "+str(mode))
-      X_ts = np.load(options['data_folder']+'X_ts'+str(mode)+'.npy')
-      Ndatapoints = len(X_ts) #number of datapoints in the test set e.g. 2(mode1),4(mode2).. etc.
-      X = np.zeros((Ndatapoints*Nmodels,Ndata),dtype='float')#initialize to zeros
-      l=[]
-      for i in range (Nmodels):
-          train(str(mode))
-          ev,dc=eval(str(mode))
-          for i in dc:
-              l.append(i)
-          dice[mode]=l
-      for d in range(mode,len(dice)+1):
-          for m in range(Ndatapoints*Nmodels):
-              print(d,m)
-              X[m,d] = dice[d][m]
-  return X
+	Ndatapoints = 10 #number of datapoints in the test set
+	dice={}
+	X_rand = np.zeros((Ndatapoints*Nmodels,Ndata),dtype='float') #initialize to zeros
+	X_sg = np.zeros((Ndatapoints*Nmodels,Ndata),dtype='float') #initialize to zeros
+
+	for d in range(1,Ndata+1):
+	    for m in range(Ndatapoints*Nmodels):
+	        X_rand[m,d-1] = dice_rand['%s'%d][m]
+	for d in range(1,Ndata+1):
+	    for m in range(Ndatapoints*Nmodels):
+	        X_sg[m,d-1] = dice_sg['%s'%d][m]
+	return X_rand,X_sg
+def sample_prediction(dc,sample_size,random=False):
+    dc=np.asarray(dc, dtype=np.float32)
+    dc = dc.ravel()
+    df = pd.read_csv('./training_pool.csv')
+    sug_annot=[]
+    if random==True: # receives random samples and feeds them to the RANDOM - annotation procedure 
+        #while len(sug_annot)<6:
+        #idx=r.randint(0,df.shape[0])
+        #if ((df['idx']==idx).any())==True:
+        #    indices=df['idx'].iloc[idx]
+        #    sug_annot.append(indices)
+        idx = np.argpartition(dc, sample_size)
+        idx=r.sample(list(idx),sample_size)
+        indices=df['idx'].loc[idx]
+        for i in range (len(indices)):
+                     sug_annot.append(indices.iloc[i])
+    else:     # predicts worse n (n=sample_size) samples in the X_pool set, then appends their indices in a list for future annotation
+        idx = np.argpartition(dc, -sample_size)[-sample_size:]
+        indices=df['idx'].loc[idx]
+        for i in range (indices.shape[0]):
+             sug_annot.append(indices.iloc[i])
+    return sug_annot
+def dice_pred(p,Y_ts):
+    d=[]
+    for i in range(Y_ts.shape[0]):
+    #plt.imshow(Y_ts[0,:,:,0])
+    #plt.show()
+    #plt.imshow(p[0,:,:,0])
+    #plt.show()
+    #plt.imshow(unc[0,:,:,0])
+    #plt.show()
+        d.append((dice2D(p[i,:,:,0],Y_ts[i,:,:,0])))
+    return d
