@@ -21,7 +21,7 @@ def uncertainty_calc(X,model,bz,sample_times):
         end = time.time()        
         chkpnt=(end-start) # this is how long it lasts for all images of the test set, for MC Dropout-based Uncertainty Estimation
         
-        #%% convert predictedυγιείς mask to binary
+        #%% convert predicted mask to binary
         threshold=0.5
         prediction[prediction<threshold]=0
         prediction[prediction>=threshold]=1
